@@ -35,7 +35,7 @@ jobs:
       run: |
         IMAGE="${{ secrets.DOCKERHUB_USERNAME }}/brainwave-react:latest"
         docker build -t $IMAGE -f docker/Dockerfile .
-        echo "::set-output name=image::$IMAGE"
+        echo "image=$IMAGE" >> $GITHUB_OUTPUT
       id: build_image
 
     - name: Push Docker image to Docker Hub
