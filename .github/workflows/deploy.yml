@@ -78,12 +78,15 @@ jobs:
     #     terraform output -raw public_ip > public_ip.txt
     #     echo "PUBLIC_IP=$(cat public_ip.txt)" >> $GITHUB_OUTPUT
 
-    - name: Get Terraform outputs (public IP)
-      working-directory: ./terraform
-      id: tf_outputs
-      run: |
-        public_ip=$(terraform output -raw public_ip)
-        echo "PUBLIC_IP=$public_ip" >> $GITHUB_OUTPUT
+    # - name: Get Terraform outputs (public IP)
+    #   working-directory: ./terraform
+    #   id: tf_outputs
+    #   run: |
+    #     terraform output -raw public_ip > public_ip.txt
+    #     terraform output -raw instance_id > instance_id.txt
+    #     echo "PUBLIC_IP=$(cat public_ip.txt)" >> $GITHUB_OUTPUT
+    #     echo "INSTANCE_ID=$(cat instance_id.txt)" >> $GITHUB_OUTPUT
+    
 
     - name: Create Ansible inventory (dynamic)
       run: |
