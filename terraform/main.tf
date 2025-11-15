@@ -40,9 +40,7 @@ resource "aws_security_group" "allow_http_ssh" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 }
-resource "random_id" "suffix" {
-  byte_length = 4
-}
+
 
 # EC2 instance (no remote-exec provisioner)
 resource "aws_instance" "app_server" {
