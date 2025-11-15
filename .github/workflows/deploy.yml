@@ -123,3 +123,4 @@ jobs:
     - name: Post-deploy - show public ip
       run: |
         echo "Application should be available at http://${{ steps.tf_outputs.outputs.PUBLIC_IP }}/"
+
