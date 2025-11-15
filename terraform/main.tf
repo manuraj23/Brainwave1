@@ -37,7 +37,6 @@ resource "aws_security_group" "allow_http_ssh" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 }
-
 resource "aws_instance" "app_server" {
   ami                    = data.aws_ami.amazon_linux.id
   instance_type          = var.instance_type
@@ -47,19 +46,6 @@ resource "aws_instance" "app_server" {
   tags = {
     Name = "brainwave-app-server"
   }
-
-  provisioner "remote-exec" {
-    inline = [
-      "sudo yum update -y",
-      "sudo amazon-linux-extras install -y docker",
-      "sudo service docker start",
-      "sudo usermod -a -G docker ec2-user"
-    ]
-    connection {
-      type        = "ssh"
-      user        = var.ssh_user
-      private_key = "" # Not used in repo; we run Ansible from GitHub Actions
-      host        = self.public_ip
-    }
-  }
 }
+
+
