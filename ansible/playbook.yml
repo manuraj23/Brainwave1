@@ -1,20 +1,77 @@
-- name: Setup Docker and Kubernetes
-  hosts: web
+---
+- hosts: all
   become: yes
+  vars:
+    app_image: "{{ lookup('env','DOCKER_IMAGE') | default('REPLACE_WITH_IMAGE') }}"
+    ssh_user: "{{ lookup('env','ANSIBLE_SSH_USER') | default('ec2-user') }}"
   tasks:
-    - name: Install Docker
-      yum:
-        name: docker
-        state: present
 
-    - name: Start Docker
-      service:
-        name: docker
-        state: started
-        enabled: yes
+  - name: Ensure python3 is installed (for Ansible remote)
+    package:
+      name: python3
+      state: present
 
-    - name: Install kubectl
-      get_url:
-        url: https://s3.us-west-2.amazonaws.com/amazon-eks/1.27.3/2023-07-05/bin/linux/amd64/kubectl
-        dest: /usr/local/bin/kubectl
-        mode: '0755'
+  - name: Ensure docker is installed
+    package:
+      name: docker
+      state: present
+
+  - name: Start docker
+    service:
+      name: docker
+      state: started
+      enabled: yes
+
+  - name: Allow ec2-user to use docker without sudo
+    user:
+      name: "{{ ssh_user }}"
+      groups: docker
+      append: yes
+
+  - name: Pull React docker image
+    community.docker.docker_image:
+      name: "{{ app_image }}"
+      source: pull
+    environment:
+      DOCKER_HOST: unix://var/run/docker.sock
+
+  - name: Stop any existing container on port 80
+    community.docker.docker_container:
+      name: brainwave-react
+      state: absent
+      force_kill: yes
+    ignore_errors: yes
+
+  - name: Run React container (port 80)
+    community.docker.docker_container:
+      name: brainwave-react
+      image: "{{ app_image }}"
+      state: started
+      restart_policy: unless-stopped
+      published_ports:
+        - "80:80"
+
+  - name: Run Nagios (simple container)
+    community.docker.docker_container:
+      name: nagios-core
+      image: jasonrivers/nagios:latest
+      state: started
+      restart_policy: unless-stopped
+      published_ports:
+        - "8080:80"
+      env:
+        NAGIOSADMIN_USER: nagiosadmin
+        NAGIOSADMIN_PASS: nagios
+
+  - name: Ensure basic monitoring script exists
+    copy:
+      dest: /usr/local/bin/check_react.sh
+      content: |
+        #!/bin/bash
+        curl -f http://localhost/ >/dev/null 2>&1
+        exit $?
+      mode: '0755'
+
+  - name: Display installation summary
+    debug:
+      msg: "React container should be running on port 80. Nagios web UI on port 8080 (user: nagiosadmin / pass: nagios)."

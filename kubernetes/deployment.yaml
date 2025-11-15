@@ -1,19 +1,21 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: react-app
+  name: brainwave-react
+  labels:
+    app: brainwave-react
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
-      app: react
+      app: brainwave-react
   template:
     metadata:
       labels:
-        app: react
+        app: brainwave-react
     spec:
       containers:
-      - name: react
-        image: your-dockerhub-username/brainwave:latest
+      - name: brainwave-react
+        image: REPLACE_WITH_IMAGE
         ports:
-        - containerPort: 3000
+        - containerPort: 80

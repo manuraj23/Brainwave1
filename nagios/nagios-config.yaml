@@ -1,6 +1,14 @@
 define host {
-  use             linux-server
-  host_name       react-app-server
-  address         your-ec2-public-ip
-  check_command   check-host-alive
+  use                     linux-server
+  host_name               brainwave-app
+  alias                   brainwave-app
+  address                 127.0.0.1
+  hostgroups              linux-servers
+}
+
+define service {
+  use                     generic-service
+  host_name               brainwave-app
+  service_description     HTTP
+  check_command           check_http!-I 127.0.0.1 -p 80
 }
