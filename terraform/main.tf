@@ -1,3 +1,4 @@
+# Find latest Amazon Linux 2 (x86_64) AMI
 data "aws_ami" "amazon_linux" {
   most_recent = true
   owners      = ["amazon"]
@@ -8,11 +9,13 @@ data "aws_ami" "amazon_linux" {
   }
 }
 
+# create key pair in AWS using public key provided via TF_VAR_public_key
 resource "aws_key_pair" "deployer" {
   key_name   = var.key_name
   public_key = var.public_key
 }
 
+# security group allowing HTTP and SSH
 resource "aws_security_group" "allow_http_ssh" {
   name        = "brainwave-sg"
   description = "Allow SSH and HTTP"
@@ -38,6 +41,7 @@ resource "aws_security_group" "allow_http_ssh" {
   }
 }
 
+# EC2 instance (no remote-exec provisioner)
 resource "aws_instance" "app_server" {
   ami                    = data.aws_ami.amazon_linux.id
   instance_type          = var.instance_type
@@ -46,20 +50,5 @@ resource "aws_instance" "app_server" {
 
   tags = {
     Name = "brainwave-app-server"
-  }
-
-  provisioner "remote-exec" {
-    inline = [
-      "sudo yum update -y",
-      "sudo amazon-linux-extras install -y docker",
-      "sudo service docker start",
-      "sudo usermod -a -G docker ec2-user"
-    ]
-    connection {
-      type        = "ssh"
-      user        = var.ssh_user
-      private_key = "" # Not used in repo; we run Ansible from GitHub Actions
-      host        = self.public_ip
-    }
   }
 }

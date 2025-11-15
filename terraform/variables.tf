@@ -17,13 +17,7 @@ variable "key_name" {
 }
 
 variable "public_key" {
-  description = "Public SSH key contents to configure EC2 (PEM.pub content). Provided via GitHub secret as TF_VAR_public_key in workflow."
-  type        = string
-  default     = ""
-}
-
-variable "ami" {
-  description = "AMI id to use (Amazon Linux 2 default). Update if needed for your region."
+  description = "Public SSH key contents (one-line) to create AWS key pair"
   type        = string
   default     = ""
 }
