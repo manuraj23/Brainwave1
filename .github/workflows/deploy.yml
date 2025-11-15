@@ -78,14 +78,20 @@ jobs:
     #     terraform output -raw public_ip > public_ip.txt
     #     echo "PUBLIC_IP=$(cat public_ip.txt)" >> $GITHUB_OUTPUT
 
-    - name: Get Terraform outputs (public IP)
+    - name: Get Terraform outputs (public IP & instance id)
       working-directory: ./terraform
       id: tf_outputs
       run: |
-        terraform output -raw public_ip > public_ip.txt
-        terraform output -raw instance_id > instance_id.txt
-        echo "PUBLIC_IP=$(cat public_ip.txt)" >> $GITHUB_OUTPUT
-        echo "INSTANCE_ID=$(cat instance_id.txt)" >> $GITHUB_OUTPUT
+        # Use -raw but guard against stray debug lines by taking the first non-empty line
+        PUBLIC_IP=$(terraform output -raw public_ip 2>/dev/null | sed -n '1p' | tr -d '\r')
+        INSTANCE_ID=$(terraform output -raw instance_id 2>/dev/null | sed -n '1p' | tr -d '\r')
+        if [ -z "$PUBLIC_IP" ]; then
+          echo "Failed to read PUBLIC_IP from terraform output" >&2
+          terraform output
+          exit 1
+        fi
+        echo "PUBLIC_IP=$PUBLIC_IP" >> $GITHUB_OUTPUT
+        echo "INSTANCE_ID=$INSTANCE_ID" >> $GITHUB_OUTPUT
     
 
     - name: Create Ansible inventory (dynamic)
