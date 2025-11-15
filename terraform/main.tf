@@ -17,7 +17,7 @@ resource "aws_key_pair" "deployer" {
 
 # security group allowing HTTP and SSH
 resource "aws_security_group" "allow_http_ssh" {
-  name        = "brainwave-sg"
+  name        = "brainwave-sg-${random_id.suffix.hex}"
   description = "Allow SSH and HTTP"
   ingress {
     description = "ssh"
@@ -40,6 +40,9 @@ resource "aws_security_group" "allow_http_ssh" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 }
+resource "random_id" "suffix" {
+  byte_length = 4
+}
 
 # EC2 instance (no remote-exec provisioner)
 resource "aws_instance" "app_server" {
@@ -51,4 +54,7 @@ resource "aws_instance" "app_server" {
   tags = {
     Name = "brainwave-app-server"
   }
+}
+resource "random_id" "suffix" {
+  byte_length = 4
 }
