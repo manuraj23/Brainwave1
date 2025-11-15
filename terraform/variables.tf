@@ -13,7 +13,7 @@ variable "instance_type" {
 variable "key_name" {
   description = "Name for EC2 key pair (created from public key)"
   type        = string
-  default     = "brainwave-key"
+  default     = "react"
 }
 
 variable "public_key" {

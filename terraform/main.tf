@@ -11,7 +11,7 @@ data "aws_ami" "amazon_linux" {
 
 # create key pair in AWS using public key provided via TF_VAR_public_key
 resource "aws_key_pair" "deployer" {
-  key_name   = "brainwave-key"
+  key_name   = "react"
   public_key = var.public_key
 }
 
