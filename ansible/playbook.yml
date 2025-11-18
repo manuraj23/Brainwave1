@@ -64,6 +64,8 @@
         NAGIOSADMIN_USER: nagiosadmin
         NAGIOSADMIN_PASS: nagios
 
+
+
   - name: Ensure basic monitoring script exists
     copy:
       dest: /usr/local/bin/check_react.sh
